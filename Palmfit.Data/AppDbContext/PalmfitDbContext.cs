@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Palmfit.Data.Entities;
-using Palmfit.Data.Entities.MealPlan;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +23,8 @@ namespace Palmfit.Data.AppDbContext
         public DbSet<Invite> Invites { get; set; }
         public DbSet<FoodClass> FoodClasses { get; set; }
         public DbSet<Food> Foods { get; set; }
-        public DbSet<DailyMealPlan> DailyMealPlans { get; set; }
-        public DbSet<WeeklyMealPlan> WeeklyMealPlans { get; set; }
+        public DbSet<Meal> Meals { get; set; }
+
 
         public PalmfitDbContext(DbContextOptions<PalmfitDbContext> options) : base(options)
         {
@@ -38,8 +37,10 @@ namespace Palmfit.Data.AppDbContext
             modelBuilder.Entity<IdentityUserLogin<string>>().HasNoKey();
             modelBuilder.Entity<IdentityUserToken<string>>().HasNoKey();
 
-            // Configure One AppUser to Zero or One Relationships
-            modelBuilder.Entity<AppUser>()
+			// Configure One AppUser to Zero or One Relationships
+		
+
+			modelBuilder.Entity<AppUser>()
                 .HasOne(a => a.Health)
                 .WithOne(h => h.AppUser)
                 .HasForeignKey<Health>(h => h.AppUserId);
@@ -131,13 +132,29 @@ namespace Palmfit.Data.AppDbContext
             modelBuilder.Entity<FoodClass>()
                 .HasMany(fc => fc.Foods)
                 .WithOne(f => f.FoodClass)
-                .HasForeignKey(f => f.FoodClassId);
+                .HasForeignKey(f => f.FoodClassId)
+				.OnDelete(DeleteBehavior.NoAction);
 
             // Configure One to Many Foods Relationship
             modelBuilder.Entity<Food>()
                 .HasOne(f => f.FoodClass)
                 .WithMany(fc => fc.Foods)
                 .HasForeignKey(f => f.FoodClassId);
-        }
+
+			        modelBuilder.Entity<Meal>()
+	          .HasOne(m => m.AppUser)
+	          .WithMany()
+	          .HasForeignKey(m => m.AppUserId)
+	          .OnDelete(DeleteBehavior.NoAction);
+
+			modelBuilder.Entity<Meal>()
+				.HasOne(m => m.Food)
+				.WithMany()
+				.HasForeignKey(m => m.FoodId)
+				.OnDelete(DeleteBehavior.Restrict);
+
+		}
+	
+
     }
 }

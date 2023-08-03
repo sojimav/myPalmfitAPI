@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Palmfit.Data.AppDbContext;
 
@@ -11,9 +12,11 @@ using Palmfit.Data.AppDbContext;
 namespace Palmfit.Data.Migrations
 {
     [DbContext(typeof(PalmfitDbContext))]
-    partial class PalmfitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230802130114_V13")]
+    partial class V13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,16 +254,40 @@ namespace Palmfit.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
+            modelBuilder.Entity("Palmfit.Data.Entities.BaseEntity", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("Calorie")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseEntity");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
+                {
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
+
+                    b.Property<decimal>("Calorie")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -278,9 +305,6 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -293,23 +317,14 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("FoodClassId");
 
-                    b.ToTable("Foods");
+                    b.HasDiscriminator().HasValue("Food");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.FoodClass", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -319,25 +334,28 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("Description")
+                                .HasColumnName("FoodClass_Description");
 
-                    b.HasKey("Id");
+                            t.Property("Details")
+                                .HasColumnName("FoodClass_Details");
 
-                    b.ToTable("FoodClasses");
+                            t.Property("Name")
+                                .HasColumnName("FoodClass_Name");
+                        });
+
+                    b.HasDiscriminator().HasValue("FoodClass");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Health", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
@@ -350,9 +368,6 @@ namespace Palmfit.Data.Migrations
                     b.Property<int>("BloodGroup")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("GenoType")
                         .HasColumnType("int");
 
@@ -362,15 +377,9 @@ namespace Palmfit.Data.Migrations
                     b.Property<int>("HeightUnit")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Reference")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<double>("Weight")
                         .HasColumnType("float");
@@ -378,25 +387,20 @@ namespace Palmfit.Data.Migrations
                     b.Property<int>("WeightUnit")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
 
-                    b.ToTable("Healths");
+                    b.HasDiscriminator().HasValue("Health");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Invite", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -404,9 +408,6 @@ namespace Palmfit.Data.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -416,27 +417,27 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Invites");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Invite_AppUserId");
+
+                            t.Property("Name")
+                                .HasColumnName("Invite_Name");
+                        });
+
+                    b.HasDiscriminator().HasValue("Invite");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Meal", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("DayOfTheWeek")
                         .HasColumnType("int");
@@ -445,41 +446,32 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("MealOfDay")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("FoodId");
 
-                    b.ToTable("Meals");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Meal_AppUserId");
+                        });
+
+                    b.HasDiscriminator().HasValue("Meal");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Notification", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -488,24 +480,27 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Notification_AppUserId");
+
+                            t.Property("Date")
+                                .HasColumnName("Notification_Date");
+                        });
+
+                    b.HasDiscriminator().HasValue("Notification");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Review", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
@@ -515,75 +510,61 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Verdict")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Review_AppUserId");
+
+                            t.Property("Date")
+                                .HasColumnName("Review_Date");
+                        });
+
+                    b.HasDiscriminator().HasValue("Review");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Setting", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
 
-                    b.ToTable("Settings");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Setting_AppUserId");
+                        });
+
+                    b.HasDiscriminator().HasValue("Setting");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Subscription", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsExpired")
                         .HasColumnType("bit");
@@ -594,20 +575,20 @@ namespace Palmfit.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Subscription_AppUserId");
+                        });
+
+                    b.HasDiscriminator().HasValue("Subscription");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Transaction", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
@@ -618,9 +599,6 @@ namespace Palmfit.Data.Migrations
 
                     b.Property<int>("Channel")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Currency")
                         .IsRequired()
@@ -637,9 +615,6 @@ namespace Palmfit.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("bit");
 
@@ -650,56 +625,60 @@ namespace Palmfit.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Vendor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Transaction_AppUserId");
+
+                            t.Property("Date")
+                                .HasColumnName("Transaction_Date");
+
+                            t.Property("Description")
+                                .HasColumnName("Transaction_Description");
+
+                            t.Property("Reference")
+                                .HasColumnName("Transaction_Reference");
+
+                            t.Property("Type")
+                                .HasColumnName("Transaction_Type");
+                        });
+
+                    b.HasDiscriminator().HasValue("Transaction");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Wallet", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("AppUserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
 
-                    b.ToTable("Wallets");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("AppUserId")
+                                .HasColumnName("Wallet_AppUserId");
+                        });
+
+                    b.HasDiscriminator().HasValue("Wallet");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.WalletHistory", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasBaseType("Palmfit.Data.Entities.BaseEntity");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -711,18 +690,12 @@ namespace Palmfit.Data.Migrations
                     b.Property<string>("HealthId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Reference")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("WalletAppUserId")
                         .IsRequired()
@@ -731,13 +704,29 @@ namespace Palmfit.Data.Migrations
                     b.Property<string>("WalletId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
-
                     b.HasIndex("HealthId");
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("WalletHistories");
+                    b.ToTable("BaseEntity", t =>
+                        {
+                            t.Property("Amount")
+                                .HasColumnName("WalletHistory_Amount");
+
+                            t.Property("Date")
+                                .HasColumnName("WalletHistory_Date");
+
+                            t.Property("Details")
+                                .HasColumnName("WalletHistory_Details");
+
+                            t.Property("Reference")
+                                .HasColumnName("WalletHistory_Reference");
+
+                            t.Property("Type")
+                                .HasColumnName("WalletHistory_Type");
+                        });
+
+                    b.HasDiscriminator().HasValue("WalletHistory");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
@@ -778,13 +767,13 @@ namespace Palmfit.Data.Migrations
                     b.HasOne("Palmfit.Data.Entities.AppUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Palmfit.Data.Entities.Food", "Food")
                         .WithMany()
                         .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");

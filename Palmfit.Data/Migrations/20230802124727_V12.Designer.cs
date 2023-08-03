@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Palmfit.Data.AppDbContext;
 
@@ -11,9 +12,11 @@ using Palmfit.Data.AppDbContext;
 namespace Palmfit.Data.Migrations
 {
     [DbContext(typeof(PalmfitDbContext))]
-    partial class PalmfitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230802124727_V12")]
+    partial class V12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -778,13 +781,13 @@ namespace Palmfit.Data.Migrations
                     b.HasOne("Palmfit.Data.Entities.AppUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Palmfit.Data.Entities.Food", "Food")
                         .WithMany()
                         .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Palmfit.Data.AppDbContext;
 
@@ -11,9 +12,11 @@ using Palmfit.Data.AppDbContext;
 namespace Palmfit.Data.Migrations
 {
     [DbContext(typeof(PalmfitDbContext))]
-    partial class PalmfitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230731041509_V3")]
+    partial class V3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -426,13 +429,42 @@ namespace Palmfit.Data.Migrations
                     b.ToTable("Invites");
                 });
 
-            modelBuilder.Entity("Palmfit.Data.Entities.Meal", b =>
+            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AppUserId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Day")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FoodId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameOfMeal")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FoodId");
+
+                    b.ToTable("MealPlan");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.NewFolder.DailyMeals", b =>
+                {
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -440,6 +472,31 @@ namespace Palmfit.Data.Migrations
 
                     b.Property<int>("DayOfTheWeek")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MealId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MealId");
+
+                    b.ToTable("DailyMeals");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.NewFolder.Meal", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FoodId")
                         .IsRequired()
@@ -455,8 +512,6 @@ namespace Palmfit.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("FoodId");
 
@@ -773,21 +828,35 @@ namespace Palmfit.Data.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("Palmfit.Data.Entities.Meal", b =>
+            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan", b =>
                 {
-                    b.HasOne("Palmfit.Data.Entities.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                    b.HasOne("Palmfit.Data.Entities.Food", "Food")
+                        .WithMany("Meals")
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Food");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.NewFolder.DailyMeals", b =>
+                {
+                    b.HasOne("Palmfit.Data.Entities.NewFolder.Meal", "Meals")
+                        .WithMany("DailyMeals")
+                        .HasForeignKey("MealId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Meals");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.NewFolder.Meal", b =>
+                {
                     b.HasOne("Palmfit.Data.Entities.Food", "Food")
                         .WithMany()
                         .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AppUser");
 
                     b.Navigation("Food");
                 });
@@ -893,6 +962,11 @@ namespace Palmfit.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
+                {
+                    b.Navigation("Meals");
+                });
+
             modelBuilder.Entity("Palmfit.Data.Entities.FoodClass", b =>
                 {
                     b.Navigation("Foods");
@@ -901,6 +975,11 @@ namespace Palmfit.Data.Migrations
             modelBuilder.Entity("Palmfit.Data.Entities.Health", b =>
                 {
                     b.Navigation("Histories");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.NewFolder.Meal", b =>
+                {
+                    b.Navigation("DailyMeals");
                 });
 #pragma warning restore 612, 618
         }

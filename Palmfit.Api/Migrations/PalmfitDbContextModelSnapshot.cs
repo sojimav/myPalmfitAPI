@@ -251,6 +251,34 @@ namespace Palmfit.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Palmfit.Data.Entities.DailyMealPlan", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameOfDailyMealPlan")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WeeklyMealPlanId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WeeklyMealPlanId");
+
+                    b.ToTable("DailyMealPlans");
+                });
+
             modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
                 {
                     b.Property<string>("Id")
@@ -439,57 +467,6 @@ namespace Palmfit.Api.Migrations
                     b.HasIndex("AppUserId");
 
                     b.ToTable("Invites");
-                });
-
-            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan.DailyMealPlan", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("NameOfDailyMealPlan")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("WeeklyMealPlanId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WeeklyMealPlanId");
-
-                    b.ToTable("DailyMealPlans");
-                });
-
-            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan.WeeklyMealPlan", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("NameOfWeeklyMealPlan")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WeeklyMealPlans");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Notification", b =>
@@ -769,18 +746,48 @@ namespace Palmfit.Api.Migrations
                     b.ToTable("WalletHistories");
                 });
 
+            modelBuilder.Entity("Palmfit.Data.Entities.WeeklyMealPlan", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameOfWeeklyMealPlan")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeeklyMealPlans");
+                });
+
+            modelBuilder.Entity("Palmfit.Data.Entities.DailyMealPlan", b =>
+                {
+                    b.HasOne("Palmfit.Data.Entities.WeeklyMealPlan", null)
+                        .WithMany("weekyPlan")
+                        .HasForeignKey("WeeklyMealPlanId");
+                });
+
             modelBuilder.Entity("Palmfit.Data.Entities.Food", b =>
                 {
-                    b.HasOne("Palmfit.Data.Entities.MealPlan.DailyMealPlan", null)
+                    b.HasOne("Palmfit.Data.Entities.DailyMealPlan", null)
                         .WithMany("Breakfast")
                         .HasForeignKey("DailyMealPlanId");
 
-                    b.HasOne("Palmfit.Data.Entities.MealPlan.DailyMealPlan", null)
+                    b.HasOne("Palmfit.Data.Entities.DailyMealPlan", null)
                         .WithMany("Dinner")
                         .HasForeignKey("DailyMealPlanId1");
 
-                    b.HasOne("Palmfit.Data.Entities.MealPlan.DailyMealPlan", null)
-                        .WithMany("Launch")
+                    b.HasOne("Palmfit.Data.Entities.DailyMealPlan", null)
+                        .WithMany("Lunch")
                         .HasForeignKey("DailyMealPlanId2");
 
                     b.HasOne("Palmfit.Data.Entities.FoodClass", "FoodClass")
@@ -812,13 +819,6 @@ namespace Palmfit.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan.DailyMealPlan", b =>
-                {
-                    b.HasOne("Palmfit.Data.Entities.MealPlan.WeeklyMealPlan", null)
-                        .WithMany("weekyPlan")
-                        .HasForeignKey("WeeklyMealPlanId");
                 });
 
             modelBuilder.Entity("Palmfit.Data.Entities.Notification", b =>
@@ -922,6 +922,15 @@ namespace Palmfit.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Palmfit.Data.Entities.DailyMealPlan", b =>
+                {
+                    b.Navigation("Breakfast");
+
+                    b.Navigation("Dinner");
+
+                    b.Navigation("Lunch");
+                });
+
             modelBuilder.Entity("Palmfit.Data.Entities.FoodClass", b =>
                 {
                     b.Navigation("Foods");
@@ -932,16 +941,7 @@ namespace Palmfit.Api.Migrations
                     b.Navigation("Histories");
                 });
 
-            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan.DailyMealPlan", b =>
-                {
-                    b.Navigation("Breakfast");
-
-                    b.Navigation("Dinner");
-
-                    b.Navigation("Launch");
-                });
-
-            modelBuilder.Entity("Palmfit.Data.Entities.MealPlan.WeeklyMealPlan", b =>
+            modelBuilder.Entity("Palmfit.Data.Entities.WeeklyMealPlan", b =>
                 {
                     b.Navigation("weekyPlan");
                 });
