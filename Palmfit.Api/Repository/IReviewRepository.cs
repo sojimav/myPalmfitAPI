@@ -2,5 +2,6 @@
 {
 	public interface IReviewRepository
 	{
+		Task<string> AddReview(ReviewDTO reviewDTO, string userId);
 	}
 }

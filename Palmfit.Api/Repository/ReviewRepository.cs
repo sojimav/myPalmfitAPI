@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Palmfit.Data.AppDbContext;
 using Palmfit.Data.Entities;
 
 namespace Palmfit.Api.Repository
 {
-	public class ReviewRepository
+	public class ReviewRepository : IReviewRepository
 	{
 		private readonly PalmfitDbContext _palmfitcontext;
 
@@ -13,13 +14,13 @@ namespace Palmfit.Api.Repository
 			_palmfitcontext = palmfitcontext;
 		}
 
-		public async Task<string>iew(ReviewDTO reviewDTO, string userId)
+		public async Task<string>AddReview(ReviewDTO reviewDTO, string userId)
 		{
-			var validateUser = _palmfitcontext.Users.FirstOrDefault(row => row.Id == userId);
+			var validateUser = await  _palmfitcontext.Users.FirstOrDefaultAsync(row => row.Id == userId);
 
 			if (validateUser == null)
 			{
-				
+				return "User does not exist!";
 			}
 
 			
@@ -39,6 +40,10 @@ namespace Palmfit.Api.Repository
 
 			_palmfitcontext.Reviews.Add(review);
 			_palmfitcontext.SaveChanges();
+
+			return "Review Updated Sucessfully!";
 		}
+
+
 	}
 }
