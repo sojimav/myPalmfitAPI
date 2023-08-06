@@ -1,4 +1,6 @@
-﻿using Palmfit.Data.AppDbContext;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Palmfit.Data.AppDbContext;
 using Palmfit.Data.Entities;
 
 namespace Palmfit.Api.Repository
@@ -6,13 +8,15 @@ namespace Palmfit.Api.Repository
 	public class RegisterRepository : IRegister
 	{
 		private readonly PalmfitDbContext _context;
+		private readonly UserManager<AppUser> _userManager;
 
-		public RegisterRepository(PalmfitDbContext context)
+		public RegisterRepository(PalmfitDbContext context, UserManager<AppUser> userManager)
 		{
 			_context = context;
+			_userManager = userManager;
 		}
 
-		public async void RegisterUser(RegisterDTO registerDTO )
+		public async Task<string> RegisterUser(RegisterDTO registerDTO )
 		{
 			AppUser appUser = new AppUser()
 			{
@@ -23,7 +27,6 @@ namespace Palmfit.Api.Repository
 				Email = registerDTO.Email,
 				UserName = registerDTO.UserName,
 				MiddleName = registerDTO.MiddleName,
-				PasswordHash = registerDTO.Password,
 				Image = registerDTO.Image,
 				Address = registerDTO.Address,
 				Area = registerDTO.Area,
@@ -35,8 +38,13 @@ namespace Palmfit.Api.Repository
 				ReferralCode = "212"
 			};
 
-			await _context.Users.AddAsync(appUser);	
-			_context.SaveChanges();
+	     	var result = await	_userManager.CreateAsync( appUser, registerDTO.Password);
+	  
+
+			if (result.Succeeded)
+			return "User sucessfully registered!";
+
+			return "registration failed!";
 		}
 	}
 }

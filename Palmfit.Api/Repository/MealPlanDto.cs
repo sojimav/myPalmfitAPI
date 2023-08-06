@@ -5,6 +5,8 @@ namespace Palmfit.Api.Repository
 {
 	public class MealPlanDto
 	{
+		public string DayOfTheWeek { get; set; }
+		public string MealOfDay { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
 		public string Details { get; set; }
@@ -12,9 +14,7 @@ namespace Palmfit.Api.Repository
 		public string Image { get; set; }
 		public decimal Calorie { get; set; }
 		public string Unit { get; set; }
-		public string MealOfDay { get; set; }
-		public string DayOfTheWeek { get; set; }
-		public string AppUserId { get; set; }
+		
 
 	}
 }

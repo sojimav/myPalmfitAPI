@@ -8,7 +8,8 @@ namespace Palmfit.Api.Repository
 	{
 		//public IEnumerable<List<MealPlan>> GetDailyOrWeeklyPlan(int week, bool isWeek = true);
 
-		Task<IEnumerable<MealPlanDto>> Chow(int day, string appUserId);
+		Task<IEnumerable<MealPlanDto>> GetWeeklyPlan(int week, string appUserId);
+		 Task<IEnumerable<MealPlanDto>> GetDailyPlan(int day, string appUserId);
 		Task<string> AddMealPlan(string foodId, string userId, PostMealDTO mealPlanDTO);
 	}
 }

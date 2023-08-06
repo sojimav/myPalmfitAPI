@@ -2,6 +2,6 @@
 {
 	public interface IRegister
 	{
-		void RegisterUser(RegisterDTO registerDTO);
+		Task<string> RegisterUser(RegisterDTO registerDTO);
 	}
 }

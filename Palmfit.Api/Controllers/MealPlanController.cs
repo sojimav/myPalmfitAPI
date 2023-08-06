@@ -27,7 +27,7 @@ namespace Palmfit.Api.Controllers
 			if(day < 0 && day > 6 || appUserId == null)
 				return BadRequest("Bad request");
 
-		  	var result  = await _mealPlanRepository.Chow(day, appUserId);
+		  	var result  = await _mealPlanRepository.GetDailyPlan(day, appUserId);
 
 			if (result == null)
 			{
@@ -36,6 +36,22 @@ namespace Palmfit.Api.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("weekly-plan")]
+		public async Task<IActionResult> GetWeeklyPlan(int week, string appUserId)
+		{
+			if(week < 0 || week > 53|| appUserId == null)
+			{
+				return BadRequest();
+			}
+
+			var result = await _mealPlanRepository.GetWeeklyPlan(week, appUserId);
+			if(result == null)
+			{
+				return NotFound(result);
+			}
+
+			return Ok(result);
+		}
 
 		[HttpPost("post/mealplan")]
 		[ProducesResponseType(statusCode: StatusCodes.Status200OK)]

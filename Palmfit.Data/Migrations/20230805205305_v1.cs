@@ -29,22 +29,6 @@ namespace Palmfit.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MealPlans",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    NameOfMeal = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Day = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MealPlans", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RoleClaims",
                 columns: table => new
                 {
@@ -181,7 +165,6 @@ namespace Palmfit.Data.Migrations
                     Calorie = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Unit = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FoodClassId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MealPlanId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -193,11 +176,6 @@ namespace Palmfit.Data.Migrations
                         name: "FK_Foods_FoodClasses_FoodClassId",
                         column: x => x.FoodClassId,
                         principalTable: "FoodClasses",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Foods_MealPlans_MealPlanId",
-                        column: x => x.MealPlanId,
-                        principalTable: "MealPlans",
                         principalColumn: "Id");
                 });
 
@@ -404,6 +382,36 @@ namespace Palmfit.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Meals",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FoodId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MealOfDay = table.Column<int>(type: "int", nullable: false),
+                    DayOfTheWeek = table.Column<int>(type: "int", nullable: false),
+                    Week = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Meals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Meals_Foods_FoodId",
+                        column: x => x.FoodId,
+                        principalTable: "Foods",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Meals_Users_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WalletHistories",
                 columns: table => new
                 {
@@ -441,11 +449,6 @@ namespace Palmfit.Data.Migrations
                 column: "FoodClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Foods_MealPlanId",
-                table: "Foods",
-                column: "MealPlanId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Healths_AppUserId",
                 table: "Healths",
                 column: "AppUserId",
@@ -455,6 +458,16 @@ namespace Palmfit.Data.Migrations
                 name: "IX_Invites_AppUserId",
                 table: "Invites",
                 column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meals_AppUserId",
+                table: "Meals",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meals_FoodId",
+                table: "Meals",
+                column: "FoodId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_AppUserId",
@@ -503,10 +516,10 @@ namespace Palmfit.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Foods");
+                name: "Invites");
 
             migrationBuilder.DropTable(
-                name: "Invites");
+                name: "Meals");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
@@ -545,16 +558,16 @@ namespace Palmfit.Data.Migrations
                 name: "WalletHistories");
 
             migrationBuilder.DropTable(
-                name: "FoodClasses");
-
-            migrationBuilder.DropTable(
-                name: "MealPlans");
+                name: "Foods");
 
             migrationBuilder.DropTable(
                 name: "Healths");
 
             migrationBuilder.DropTable(
                 name: "Wallets");
+
+            migrationBuilder.DropTable(
+                name: "FoodClasses");
 
             migrationBuilder.DropTable(
                 name: "Users");

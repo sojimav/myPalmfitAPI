@@ -7,5 +7,6 @@ namespace Palmfit.Api.Repository
 		
 		public MealOfDay MealOfDay { get; set; }
 		public DaysOfWeek DayOfTheWeek { get; set; }
+		public int Week { get; set; }
 	}
 }

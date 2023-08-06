@@ -19,9 +19,10 @@ public RegisterController(IRegister register)
 		[HttpPost]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
 		{
-			 _register.RegisterUser(registerDTO);
+			var result =  await _register.RegisterUser(registerDTO);
+			
 
-			return Ok(ModelState);
+			return Ok(result);
 		}
 	}
 }
